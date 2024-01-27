@@ -1,126 +1,135 @@
 package com.bytestocode.projectat
 
+import Dog
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.bytestocode.projectat.data.DataSource
-import com.bytestocode.projectat.model.Topic
-import com.bytestocode.projectat.ui.theme.CustomTheme
+import com.bytestocode.projectat.ui.theme.WoofTheme
+import dogs
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CustomTheme {
+            WoofTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    TopicGrid(
-                        modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
-                    )
+                    WoofApp()
                 }
             }
         }
     }
 }
 
+/**
+ * Composable that displays an app bar and a list of dogs.
+ */
 @Composable
-fun TopicGrid(modifier: Modifier = Modifier) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+fun WoofApp() {
+    LazyColumn {
+        items(dogs) {
+            DogItem(dog = it)
+        }
+    }
+}
+
+/**
+ * Composable that displays a list item containing a dog icon and their information.
+ *
+ * @param dog contains the data that populates the list item
+ * @param modifier modifiers to set to this composable
+ */
+@Composable
+fun DogItem(
+    dog: Dog,
+    modifier: Modifier = Modifier
+) {
+    Row(
         modifier = modifier
+            .fillMaxWidth()
+            .padding(dimensionResource(R.dimen.padding_small))
     ) {
-        items(DataSource.topics) { topic ->
-            TopicCard(topic)
-        }
+        DogIcon(dog.imageResourceId)
+        DogInformation(dog.name, dog.age)
     }
 }
 
+/**
+ * Composable that displays a photo of a dog.
+ *
+ * @param dogIcon is the resource ID for the image of the dog
+ * @param modifier modifiers to set to this composable
+ */
 @Composable
-fun TopicCard(topic: Topic, modifier: Modifier = Modifier) {
-    Card {
-        Row {
-            Box {
-                Image(
-                    painter = painterResource(id = topic.imageRes),
-                    contentDescription = null,
-                    modifier = modifier
-                        .size(width = 68.dp, height = 68.dp)
-                        .aspectRatio(1f),
-                    contentScale = ContentScale.Crop
-                )
-            }
+fun DogIcon(
+    @DrawableRes dogIcon: Int,
+    modifier: Modifier = Modifier
+) {
+    Image(
+        modifier = modifier
+            .size(dimensionResource(R.dimen.image_size))
+            .padding(dimensionResource(R.dimen.padding_small)),
+        painter = painterResource(dogIcon),
 
-            Column {
-                Text(
-                    text = stringResource(id = topic.name),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(
-                        start = dimensionResource(R.dimen.padding_medium),
-                        top = dimensionResource(R.dimen.padding_medium),
-                        end = dimensionResource(R.dimen.padding_medium),
-                        bottom = dimensionResource(R.dimen.padding_small)
-                    )
-                )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_grain),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(start = dimensionResource(R.dimen.padding_medium))
-                    )
-                    Text(
-                        text = topic.availableCourses.toString(),
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(start = dimensionResource(R.dimen.padding_small))
-                    )
-                }
-            }
-        }
+        // Content Description is not needed here - image is decorative, and setting a null content
+        // description allows accessibility services to skip this element during navigation.
+
+        contentDescription = null
+    )
+}
+
+/**
+ * Composable that displays a dog's name and age.
+ *
+ * @param dogName is the resource ID for the string of the dog's name
+ * @param dogAge is the Int that represents the dog's age
+ * @param modifier modifiers to set to this composable
+ */
+@Composable
+fun DogInformation(
+    @StringRes dogName: Int,
+    dogAge: Int,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = stringResource(dogName),
+            modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_small))
+        )
+        Text(
+            text = stringResource(R.string.years_old, dogAge),
+        )
     }
 }
 
-@Preview(showBackground = true)
+/**
+ * Composable that displays what the UI of the app looks like in light theme in the design tab.
+ */
+@Preview
 @Composable
-fun TopicPreview() {
-    CustomTheme {
-        val topic = Topic(R.string.architecture, 321, R.drawable.architecture)
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            TopicCard(topic = topic)
-        }
+fun WoofPreview() {
+    WoofTheme(darkTheme = false) {
+        WoofApp()
     }
 }
