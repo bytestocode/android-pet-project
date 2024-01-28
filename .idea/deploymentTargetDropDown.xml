@@ -2,10 +2,10 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="AffirmationCardPreview">
+      <entry key="TipUITests">
         <State />
       </entry>
-      <entry key="TipUITests">
+      <entry key="WoofDarkThemePreview">
         <State />
       </entry>
       <entry key="app">
